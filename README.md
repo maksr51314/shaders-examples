@@ -1,4 +1,4 @@
-shaders example
+# shaders example
 
 ## TODO :
  1. Create simple shader - done
@@ -12,7 +12,7 @@ shaders example
 
 
 
-## Advanced rendering
+#### Advanced rendering
  4. Wireframe / point rendering
  5. blending
  6. gammacorrectio
@@ -20,7 +20,7 @@ shaders example
 
 
 
-## lights and shadows
+#### lights and shadows
  8. Shadow mapping
  9. PCF - percentage close filtering
  10. Variance shadow mapping ( VSM )
