@@ -28,6 +28,11 @@ function Animation(shaders) {
      */
     me.buffers = me.initBuffers(me.gl);
 
+    /**
+     * Init texture
+     */
+    me.texture = me.initTexture(me.gl);
+
     //clear all before draw
     me.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     me.gl.enable(me.gl.DEPTH_TEST); //TODO :WTF ??
@@ -36,10 +41,14 @@ function Animation(shaders) {
     me.rTri = 30;
     me.axis = [0, 1, 0];
 
-    /**
-     * Run animation after WEBGL init
-     */
-    me.animate(me.gl, me.buffers, me.shaderProgram);
+    setTimeout(function() {
+        /**
+         * Run animation after WEBGL init
+         */
+        me.animate(me.gl, me.buffers, me.shaderProgram);
+    }, 1000);
+
+
 }
 
 Animation.prototype.animate = function(gl, buffers, shaderProgram) {
@@ -102,6 +111,10 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
         false, 0, 0
     );
 
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, me.texture.frog);
+    gl.uniform1i(shaderProgram.samplerUniform, 0);
+
     //set matrix uniform
 
     //void glUniformMatrix4fv(	GLint location,
@@ -116,6 +129,56 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
 
 
     window.requestAnimationFrame(me.animate.bind(me, gl, buffers, shaderProgram));
+};
+
+/**
+ * Create some textures
+ * @param gl
+ * @returns {{frog: WebGLRenderingContext.createTexture}}
+ */
+Animation.prototype.initTexture = function(gl) {
+    var me = this,
+        frog = gl.createTexture();
+
+    frog.image = new Image();
+    frog.image.onload = function() {
+        me.handleLoadedTexture(gl, frog);
+    };
+
+    frog.image.src = Config.Images.FROG;
+
+    return {
+        frog : frog
+    }
+};
+
+Animation.prototype.handleLoadedTexture = function(gl, texture) {
+
+    //current texture
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    //Next, we tell WebGL that all images we load into textures need to be flipped vertically.
+    // We do this because of a difference in coordinates;
+    // for our texture coordinates, we use coordinates that,
+    // like the ones you would normally use in mathematics, increase as you move upwards along the vertical axis;
+    // this is consistent with the X, Y, Z coordinates we’re using to specify our vertex position
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    // choose image
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+
+    // these specify special scaling parameters for the texture
+    //  tells WebGL what to do when the texture is filling up a large amount of the screen relative to the image size
+    // NEAREST is the least attractive of these, as it just says you should use the original image as-is, which means that it will look very blocky when close-up.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // is the equivalent hint for how to scale it down.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+    //Once this is done, we set the current texture to null; this is not strictly necessary,
+    // but is good practice; a kind of tidying up after yourself.
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
 };
 
 /**
@@ -185,6 +248,7 @@ Animation.prototype.initShaders = function(gl, shaders) {
     //TODO  : check
     shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, 'uPMatrix');
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix');
+    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 
     return shaderProgram;
 };
@@ -263,25 +327,32 @@ Animation.prototype.initBuffers = function(gl) {
 
     var colors = [
         // Front face
-        0.0, 0.0, 0.0, 1.0,
-        0.0, 0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0,
-        // Right face
-        1.0, 0.0, 0.0, 1.0,
-        0.0, 0.0, 0.0, 1.0,
-        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+
         // Back face
-        0.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 0.0, 1.0,
-        // Left face
-        1.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        0.0, 0.0,
+
+        // Top face
+        0.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+
+        // Bottom face
+        1.0, 1.0,
+        0.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0
     ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-    triangleVertexColorBuffer.itemSize = 4; //because matrix is 4x4 rgba
+    triangleVertexColorBuffer.itemSize = 2; //because matrix is 4x4 rgba
     triangleVertexColorBuffer.numItems = 12;
 
     //TODO : squre init
