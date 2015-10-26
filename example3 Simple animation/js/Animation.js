@@ -32,6 +32,10 @@ function Animation(shaders) {
     me.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     me.gl.enable(me.gl.DEPTH_TEST); //TODO :WTF ??
 
+    //start position for rotation
+    me.rTri = 30;
+    me.axis = [0, 1, 0];
+
     /**
      * Run animation after WEBGL init
      */
@@ -42,6 +46,8 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
     var me = this,
         pMatrix = mat4.create(),
         mvMatrix = mat4.create();
+
+    me.rTri = me.rTri + 10;
 
     //set correct data to the viewport
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); //x , y , width , height
@@ -64,6 +70,9 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
     //* @param {mat4} a the matrix to translate
     //* @param {vec3} v vector to translate by
     mat4.translate(mvMatrix, mvMatrix, translation);
+
+
+    mat4.rotate(mvMatrix, mvMatrix, utils.degToRad(me.rTri), me.axis);
 
     // Buffers are the way of getting vertex and other per vertex data onto the GPU.
     // gl.createBuffer creates a buffer.
@@ -225,21 +234,47 @@ Animation.prototype.initBuffers = function(gl) {
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
 
     var vertices = [
-      0.0,  1.0,  0.0,
-     -1.0, -1.0,  0.0,
-      1.0, -1.0,  0.0
+        // Front face
+        0.0,  1.0,  0.0,
+        -1.0, -1.0,  1.0,
+        1.0, -1.0,  1.0,
+        // Right face
+        0.0,  1.0,  0.0,
+        1.0, -1.0,  1.0,
+        1.0, -1.0, -1.0,
+        // Back face
+        0.0,  1.0,  0.0,
+        1.0, -1.0, -1.0,
+        -1.0, -1.0, -1.0,
+        // Left face
+        0.0,  1.0,  0.0,
+        -1.0, -1.0, -1.0,
+        -1.0, -1.0,  1.0
     ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
     triangleVertexPositionBuffer.itemSize = 3; // coordinate count for number
-    triangleVertexPositionBuffer.numItems = 3; // points count
+    triangleVertexPositionBuffer.numItems = 12; // points count
 
     var triangleVertexColorBuffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
 
     var colors = [
+        // Front face
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+        // Right face
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        // Back face
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        // Left face
         1.0, 0.0, 0.0, 1.0,
         0.0, 1.0, 0.0, 1.0,
         0.0, 0.0, 1.0, 1.0
@@ -247,7 +282,7 @@ Animation.prototype.initBuffers = function(gl) {
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
     triangleVertexColorBuffer.itemSize = 4; //because matrix is 4x4 rgba
-    triangleVertexColorBuffer.numItems = 3;
+    triangleVertexColorBuffer.numItems = 12;
 
     //TODO : squre init
     //SQUARE BUFFER

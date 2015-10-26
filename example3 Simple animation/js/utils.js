@@ -18,6 +18,14 @@ var utils = {
         }
 
         return temp;
+    },
+
+    /**
+     * @param degrees
+     * @returns {number}
+     */
+    degToRad : function (degrees) {
+        return degrees * Math.PI / 180;
     }
 
 };
