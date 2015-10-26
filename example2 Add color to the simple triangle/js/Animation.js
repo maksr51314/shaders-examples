@@ -82,6 +82,17 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
         gl.FLOAT,
         false, 0, 0);
 
+
+    //ADDED COLOR
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.triangleColor);
+
+    gl.vertexAttribPointer(
+        shaderProgram.vertexColorAttribute,
+        buffers.triangleColor.itemSize,
+        gl.FLOAT,
+        false, 0, 0
+    );
+
     //set matrix uniform
 
     //void glUniformMatrix4fv(	GLint location,
@@ -155,6 +166,11 @@ Animation.prototype.initShaders = function(gl, shaders) {
     //WebGLRenderingContext.getAttribLocation(program, name);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+
+    //ADDED new color attribute to the VERTEX shader
+    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, 'aVertexColor');
+    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
     //Returns a WebGLUniformLocation object for the location of a uniform variable within a WebGLProgram object.
     //function(program,name)
     //TODO  : check
@@ -219,6 +235,20 @@ Animation.prototype.initBuffers = function(gl) {
     triangleVertexPositionBuffer.itemSize = 3; // coordinate count for number
     triangleVertexPositionBuffer.numItems = 3; // points count
 
+    var triangleVertexColorBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
+
+    var colors = [
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 0.0, 1.0, 1.0
+    ];
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    triangleVertexColorBuffer.itemSize = 4; //because matrix is 4x4 rgba
+    triangleVertexColorBuffer.numItems = 3;
+
     //TODO : squre init
     //SQUARE BUFFER
     //var squareVertexPositionBuffer = gl.createBuffer();
@@ -239,6 +269,7 @@ Animation.prototype.initBuffers = function(gl) {
 
     return {
         triangle : triangleVertexPositionBuffer,
+        triangleColor : triangleVertexColorBuffer
         //square : squareVertexPositionBuffer
     }
 };
