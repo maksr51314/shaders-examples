@@ -1,0 +1,8 @@
+ - Define vertex and fragment shaders, using HTML <script> tags with types "x-shader/x-vertex" and "x-shader/x-fragment"
+ - Initialise a WebGL context in initGL
+ - Load the shaders into a WebGL program object using getShader and initShaders.
+ - Define the model-view matrix mvMatrix and the projection matrix pMatrix, along with the function setMatrixUniforms for pushing them over the JavaScript/WebGL divide so that the shaders can see them.
+ - Load up buffers containing information about the objects in the scene using initBuffers
+ - Draw the scene itself, in the appropriately-named drawScene.
+ - Define a function webGLStart to set everything up in the first place
+ - Finally, we provide the minimal HTML required to display it all.
