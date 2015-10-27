@@ -46,7 +46,7 @@ function Animation(shaders) {
          * Run animation after WEBGL init
          */
         me.animate(me.gl, me.buffers, me.shaderProgram);
-    }, 1000);
+    }, 200);
 
 
 }
@@ -56,7 +56,7 @@ Animation.prototype.animate = function(gl, buffers, shaderProgram) {
         pMatrix = mat4.create(),
         mvMatrix = mat4.create();
 
-    me.rTri = me.rTri + 10;
+    me.rTri = me.rTri + 1;
 
     //set correct data to the viewport
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); //x , y , width , height

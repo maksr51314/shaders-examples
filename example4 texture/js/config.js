@@ -3,7 +3,7 @@ var Config = {
     CANVAS_ID : 'canvas',
 
     Images : {
-        FROG : 'assets/nehe.gif'
+        FROG : 'assets/giphy_s.gif'
     },
 
     Shader : {
